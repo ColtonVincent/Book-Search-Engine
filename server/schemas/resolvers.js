@@ -2,7 +2,7 @@ const { AuthenticationError } = require('apollo-server-express');
 const { User } = require('../models');
 const { signToken } = require('../utils/auth');
 
-const resolver = {
+const resolvers = {
     Query: {
         me: async (parent, args, context) => {
             if (context.user) {
@@ -23,16 +23,16 @@ const resolver = {
         },
 
         saveBook: async (parent, args, context) => {
-            const updateUser = await User.fineOneAndUpdate(
+            const updateUser = await User.findOneAndUpdate(
                 { _id: context.user._id },
-                { $addToSet: { savedBooks: args } },
+                { $addToSet: { savedBooks: args.bookData } },
                 { new: true, runValidators: true }
             )
             return updateUser
         },
 
         removeBook: async (parent, args, context) => {
-            const updatedUser = await User.fineOneAndUpdate(
+            const updatedUser = await User.findOneAndUpdate(
                 { _id: context.user._id },
                 { $pull: { savedBooks: { bookId: args.bookId } } },
                 { new: true }
@@ -52,22 +52,12 @@ const resolver = {
             const token = signToken(user);
             return { token, user}
         }
-        
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+module.exports = resolvers
+
+
+
+
+
